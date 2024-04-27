@@ -9,9 +9,10 @@ import { APP_FILTER } from '@nestjs/core';
 import { ErrorHandler } from './Errors/ErrorHandler';
 import { AuthGuard } from './Guards/AuthGuard';
 import { ChatModule } from './chat/chat.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
-  imports: [UsersModule, ChatModule],
+  imports: [UsersModule, ChatModule, MessageModule],
   controllers: [AppController],
   providers: [
     AppService,

@@ -3,11 +3,24 @@ import { createSlice } from "@reduxjs/toolkit";
 export const chatApi = createSlice({
   name: "chatApi",
   initialState: {
-    chat: null,
+    chat: {
+      id: "",
+      users: [""],
+      lastmessage: { message: "", date: new Date() },
+      isDeleted: false,
+      isRead: true,
+      unread: 0,
+      chatId: "",
+      user: {
+        name: "",
+        email: "",
+        avatar: "",
+      },
+    },
   },
   reducers: {
     setChat(state, action) {
-      state.chat = action.payload;
+      state.chat = action.payload.chat;
     },
   },
 });

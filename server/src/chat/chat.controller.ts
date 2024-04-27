@@ -6,22 +6,26 @@ import {
   Param,
   Delete,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ChatUserDTO } from './dto/create-chat.dto';
+import { AuthGuard } from 'src/Guards/AuthGuard';
 
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post('create')
+  @UseGuards(AuthGuard)
   create(@Body() chatUserDto: ChatUserDTO) {
     return this.chatService.create(chatUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.chatService.findAll();
+  @Get('get')
+  @UseGuards(AuthGuard)
+  findAll(@Body() body: any) {
+    return this.chatService.findAll(body);
   }
 
   @Get(':id')

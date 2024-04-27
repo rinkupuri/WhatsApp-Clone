@@ -32,9 +32,6 @@ class lastmessage {
   message: string;
   @IsDate()
   date: Date;
-  @IsString()
-  @IsNotEmpty()
-  sender: string;
 }
 
 class ReceiverDTO {
@@ -57,7 +54,7 @@ export class ChatUserDTO {
   id: string;
 
   @IsNotEmpty()
-  users: Array<User>;
+  users: Array<string>;
 
   @IsNotEmpty()
   lastmessage: Record<string, any>;

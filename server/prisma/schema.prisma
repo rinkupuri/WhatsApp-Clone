@@ -17,7 +17,6 @@ model Avatar{
   userId String             @db.ObjectId @unique
   url    String
   user   User   @relation(fields: [userId],references: [id])
-
 }
 
 model User{
@@ -27,32 +26,31 @@ model User{
   password  String
   avatar    Avatar?
   createdAt DateTime             @default(now())
-  updateAt  DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
 }
 
 
 model ChatUsers{
   id          String   @map("_id") @default(auto()) @id @db.ObjectId
-  users       Json[]
+  users       String[]
   lastmessage Json
   isDeleted   Boolean              @default(false)
   isRead      Boolean              @default(true)
   unread      Int                  @default(0)
-  createdAt   DateTime
-  updateAt    DateTime
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
   chatId      String               @unique
 }
-
 model Message{
-  id        String   @map("_id") @default(auto()) @id @db.ObjectId
-  sender    Json
-  receiver  Json
-  message   Json
-  isDeleted Boolean              @default(false)
-  isRead    Boolean              @default(true)
-  unread    Int                  @default(0)
-  createdAt DateTime
-  updateAt  DateTime
-  chatId    String
+  id         String   @map("_id") @default(auto()) @id @db.ObjectId
+  senderId   String
+  receiverId String
+  message    String
+  isDeleted  Boolean              @default(false)
+  isRead     Boolean              @default(true)
+  unread     Int                  @default(0)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  chatId     String
 }
 
