@@ -4,7 +4,14 @@ import { setUser } from "../userReducer/reducer";
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getUser: builder.query({
-      query: (text: string) => `/users/${text}`,
+      query: (text: string) => ({
+        url: `/users/get/${encodeURI(text)}`,
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }),
     }),
     me: builder.query({
       query: () => ({
@@ -25,4 +32,4 @@ export const userApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useGetUserQuery } = userApi;
+export const { useGetUserQuery, useMeQuery } = userApi;

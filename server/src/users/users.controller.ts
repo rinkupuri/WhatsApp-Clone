@@ -53,7 +53,7 @@ export class UsersController {
     return await this.prismaService.user.findMany({
       where: {
         name: {
-          contains: username.toLowerCase(),
+          contains: decodeURI(username).toLowerCase(),
           mode: 'insensitive',
         },
       },

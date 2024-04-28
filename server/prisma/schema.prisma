@@ -41,13 +41,16 @@ model ChatUsers{
   updatedAt   DateTime             @updatedAt
   chatId      String               @unique
 }
+
+
 model Message{
   id         String   @map("_id") @default(auto()) @id @db.ObjectId
   senderId   String
   receiverId String
   message    String
+  status     String               @default("sent")
   isDeleted  Boolean              @default(false)
-  isRead     Boolean              @default(true)
+  isRead     Boolean              @default(false)
   unread     Int                  @default(0)
   createdAt  DateTime             @default(now())
   updatedAt  DateTime             @updatedAt

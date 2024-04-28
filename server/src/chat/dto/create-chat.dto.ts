@@ -51,10 +51,10 @@ class ReceiverDTO {
 export class ChatUserDTO {
   @IsString()
   @IsNotEmpty()
-  id: string;
+  id?: string;
 
   @IsNotEmpty()
-  users: Array<string>;
+  users: String[];
 
   @IsNotEmpty()
   lastmessage: Record<string, any>;

@@ -20,6 +20,7 @@ export const chatApi = createSlice({
   },
   reducers: {
     setChat(state, action) {
+      console.log(action.payload.chat);
       state.chat = action.payload.chat;
     },
   },

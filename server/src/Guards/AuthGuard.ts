@@ -19,7 +19,6 @@ export class AuthGuard implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
     const next = context.switchToHttp().getNext();
     const { token } = request.cookies;
-
     if (!token) {
       throw new UnauthorizedException('token nedded');
     }
@@ -46,8 +45,6 @@ export class AuthGuard implements CanActivate {
     } catch (e) {
       console.log(e);
     }
-
-    console.log(user);
     if (!user) {
       throw new NotFoundException('User not found');
     }

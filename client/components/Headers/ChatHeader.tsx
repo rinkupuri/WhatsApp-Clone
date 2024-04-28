@@ -6,11 +6,15 @@ import { Separator } from "../ui/separator";
 import { RootState } from "@/redux/Store";
 import { useSelector } from "react-redux";
 import { ChatCardProps } from "../ChatCard/ChatCard";
+import { useEffect } from "react";
 
 const ChatHeader = () => {
   const { chat }: { chat: ChatCardProps["chat"] } = useSelector(
     (state: RootState) => state.chat
   );
+  useEffect(() => {
+    console.log(chat);
+  }, [chat]);
 
   return (
     <div className="w-full border-l-[1px] bg-primary flex shadow px-4 items-center justify-between h-[60px]">
@@ -18,7 +22,7 @@ const ChatHeader = () => {
         <Avatar>
           <AvatarImage src={chat?.user?.avatar} alt="User avatar" />
           <AvatarFallback>
-            {chat.user.name
+            {chat?.user?.name
               .split(" ")
               .map((value) => value.charAt(0).toUpperCase()) || "RP"}
           </AvatarFallback>

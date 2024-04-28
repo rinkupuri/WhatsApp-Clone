@@ -11,6 +11,7 @@ export class ChatService {
     });
     throw new Error('Method not implemented.');
   }
+
   constructor(private readonly prismaService: PrismaService) {}
   async create(chatUserDto: any) {
     const { users } = chatUserDto;
@@ -18,7 +19,20 @@ export class ChatService {
     const isExist = await this.prismaService.chatUsers.findUnique({
       where: { chatId: chatIDv },
     });
-    if (isExist) throw new ConflictException('Chat already exist');
+    if (isExist) {
+      const chat: any = await this.prismaService.chatUsers.findUnique({
+        where: {
+          chatId: chatUserDto.user.id + chatUserDto.users[0],
+        },
+      });
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          id: chatUserDto.users[0],
+        },
+      });
+      chat.user = user;
+      return { chat };
+    }
     const chat = await this.prismaService.chatUsers.create({
       data: {
         users: [chatUserDto.user.id, users[0]],
@@ -42,6 +56,9 @@ export class ChatService {
           has: body.user.id,
         },
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
     });
     try {
       await Promise.all(
@@ -59,7 +76,6 @@ export class ChatService {
     } catch (error) {
       console.log(error);
     }
-    console.log(chat);
 
     return { chat };
   }

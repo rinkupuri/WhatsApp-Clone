@@ -11,14 +11,20 @@ import {
 import { ChatService } from './chat.service';
 import { ChatUserDTO } from './dto/create-chat.dto';
 import { AuthGuard } from 'src/Guards/AuthGuard';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly prismaServive: PrismaService,
+  ) {}
 
   @Post('create')
   @UseGuards(AuthGuard)
-  create(@Body() chatUserDto: ChatUserDTO) {
+  async create(@Body() chatUserDto: any) {
+    console.log(chatUserDto);
+
     return this.chatService.create(chatUserDto);
   }
 

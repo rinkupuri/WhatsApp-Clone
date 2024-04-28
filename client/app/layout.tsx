@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ProviderLayout from "@/Providers/ProviderLayout";
 import { Toaster } from "react-hot-toast";
+import ProtectedRoute from "@/Providers/Providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,8 +21,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ProviderLayout>
-          {children}
-          <Toaster position="top-center" reverseOrder={false} />
+          <ProtectedRoute>
+            {children}
+            <Toaster position="top-center" reverseOrder={false} />
+          </ProtectedRoute>
         </ProviderLayout>
       </body>
     </html>
