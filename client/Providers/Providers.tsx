@@ -12,9 +12,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { data, isLoading } = useGetChatsQuery({});
   const { data: dataMe, isLoading: meLoading } = useMeQuery({});
   useEffect(() => {
-    if (!meLoading) if (!dataMe?.id) return redirect("/login");
+    if (
+      window.location.pathname !== "/login" &&
+      window.location.pathname !== "/register" &&
+      !meLoading &&
+      !dataMe?.id
+    ) {
+      return redirect("/login");
+    }
   }, [dataMe, meLoading]);
-  return <>{!isLoading && !meLoading && user?.id ? children : ""}</>;
+  return <>{!isLoading && !meLoading && children}</>;
 };
 
 export default ProtectedRoute;

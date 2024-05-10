@@ -41,7 +41,7 @@ export class ChatController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: any) {
-    return this.chatService.update(id);
+    return '';
   }
 
   @Delete(':id')

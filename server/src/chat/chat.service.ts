@@ -5,9 +5,10 @@ import { Response } from 'express';
 
 @Injectable()
 export class ChatService {
-  async update(id: string) {
-    const chat = await this.prismaService.chatUsers.findUnique({
+  async update(id: string, data: any) {
+    const chat = await this.prismaService.chatUsers.update({
       where: { chatId: id },
+      data: data,
     });
     throw new Error('Method not implemented.');
   }

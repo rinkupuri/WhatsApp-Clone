@@ -24,6 +24,7 @@ model User{
   name      String
   email     String               @unique
   password  String
+  status    String               @default("")
   avatar    Avatar?
   createdAt DateTime             @default(now())
   updatedAt DateTime             @updatedAt
@@ -34,6 +35,7 @@ model ChatUsers{
   id          String   @map("_id") @default(auto()) @id @db.ObjectId
   users       String[]
   lastmessage Json
+  status      String               @default("")
   isDeleted   Boolean              @default(false)
   isRead      Boolean              @default(true)
   unread      Int                  @default(0)

@@ -12,9 +12,11 @@ const ChatHeader = () => {
   const { chat }: { chat: ChatCardProps["chat"] } = useSelector(
     (state: RootState) => state.chat
   );
-  useEffect(() => {
-    console.log(chat);
-  }, [chat]);
+  const {
+    user,
+  }: {
+    user: any;
+  } = useSelector((state: RootState) => state.auth);
 
   return (
     <div className="w-full border-l-[1px] bg-primary flex shadow px-4 items-center justify-between h-[60px]">
@@ -30,7 +32,9 @@ const ChatHeader = () => {
 
         <div className="flex ml-4 flex-col">
           <h1 className="m-0 font-[600] text-sm p-0">{chat?.user?.name}</h1>
-          <p className="text-xs p-0 m-0 text-black/60">online</p>
+          <p className="text-xs p-0 m-0 text-black/60">
+            {user?.status ? user?.status : ""}
+          </p>
         </div>
       </div>
       <div className="flex-[1] flex gap-4 justify-end items-center">

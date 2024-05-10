@@ -20,7 +20,6 @@ import { setUser } from "@/redux/userReducer/reducer";
 import { useSelector } from "react-redux";
 const Page = () => {
   const { user, token } = useSelector((state: RootState) => state.auth);
-  console.log(user);
   const router = useRouter();
   const [loginUser, { isLoading, isSuccess }] = useLoginMutation();
   useEffect(() => {

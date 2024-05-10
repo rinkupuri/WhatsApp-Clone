@@ -52,4 +52,16 @@ export class UsersService {
     }
     return user;
   }
+
+  async updateUser(data: { id: string; status: string }): Promise<string> {
+    await this.prismaService.user.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        status: data.status,
+      },
+    });
+    return 'updated';
+  }
 }

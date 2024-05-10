@@ -30,10 +30,8 @@ interface MessageType {
       email: string;
       avatar: { url: string };
     };
-    time: string;
     isRead: boolean;
     isDeleted: boolean;
-    isEdited: boolean;
   };
 }
 
@@ -41,27 +39,23 @@ const MessageUi: FC<MessageType> = ({ chat, user }) => {
   return (
     <div
       className={`${
-        chat?.sender.id === user?.id && "flex-row-reverse"
+        chat?.sender?.id === user?.id && "flex-row-reverse"
       } w-full  flex  px-2 items-center gap-4 mt-2 min-h-[30px]`}
     >
       <Avatar>
         <AvatarFallback>
-          {chat?.sender.id === user?.id
-            ? chat?.sender.name
-                .split(" ")
-                .toString()
-                .charAt(0)
-                .toLocaleUpperCase()
-            : chat?.receiver.name
-                .split(" ")
-                .toString()
-                .charAt(0)
-                .toLocaleUpperCase()}
+          {chat?.sender?.id === user?.id
+            ? chat?.sender?.name.split(" ").map((nm) => {
+                return nm.charAt(0).toLocaleUpperCase();
+              })
+            : chat?.receiver?.name.split(" ").map((c) => {
+                return c.charAt(0).toLocaleUpperCase();
+              })}
         </AvatarFallback>
       </Avatar>
       <div
         className={`${
-          chat?.sender.id === user?.id
+          chat?.sender?.id === user?.id
             ? "rounded-br-2xl rounded-bl-2xl bg-primary/90 rounded-tl-2xl"
             : "rounded-br-2xl rounded-bl-2xl rounded-tr-2xl bg-slate-300 "
         } flex w-fit  justify-center items-center   h-full min-h-[40px] gap-1 py-1 px-4 `}
@@ -71,7 +65,7 @@ const MessageUi: FC<MessageType> = ({ chat, user }) => {
         </div>
         <div className="flex gap-1 min-h-[40px]  justify-end items-end">
           <p className="text-[10px]  text-black/80">2:30pm</p>
-          {chat?.sender.id === user?.id && (
+          {chat?.sender?.id === user?.id && (
             <>
               {chat?.status && chat?.status === "sent" ? (
                 <Check size={15} className="mb-1" />

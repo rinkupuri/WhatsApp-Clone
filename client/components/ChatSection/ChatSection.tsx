@@ -1,15 +1,20 @@
 "use client";
-import {
-  useGetMessagesQuery,
-  useUpdateAsReadMutation,
-} from "@/redux/Apis/message.api";
+import { useUpdateAsReadMutation } from "@/redux/Apis/message.api";
 import MessageUi from "../MessageUi/MessageUi";
-import { FC, Key, useEffect, useState } from "react";
+import { FC, Key, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/Store";
-import { useGetChatsQuery } from "@/redux/Apis/chat.api";
+import { io } from "socket.io-client";
+import { cloneDeep } from "lodash";
 export interface chat {
+  id?: string;
+  senderId?: string;
+  receiverId?: string;
   message: string;
+  unread?: number;
+  createdAt: Date;
+  updatedAt: Date;
+  chatId?: string;
   sender: {
     id: string;
     name: string;
@@ -23,18 +28,18 @@ export interface chat {
     email: string;
     avatar: { url: string };
   };
-  time: string;
   isRead: boolean;
   isDeleted: boolean;
-  isEdited: boolean;
 }
 interface props {
   chatList: Array<chat> | undefined;
-  setChatList: (value: Array<chat>) => void;
+  setChatList: (value: any) => void;
   data: Array<chat>;
 }
 
 const ChatSection: FC<props> = ({ data, chatList, setChatList }) => {
+  const socket = useMemo(() => io("http://localhost:8800"), []);
+
   const [updatRead] = useUpdateAsReadMutation();
   const {
     user,
@@ -51,14 +56,9 @@ const ChatSection: FC<props> = ({ data, chatList, setChatList }) => {
   const { chat } = useSelector((state: RootState) => state.chat);
 
   useEffect(() => {
-    if (chat.chatId) updatRead(chat.chatId);
-  }, [chat]);
-
-  useEffect(() => {
     if (data) {
-      const chatData: Array<chat> = data.filter(
-        (chat: any) => chat.isDeleted === false
-      );
+      const chatData = cloneDeep(data);
+
       setChatList(chatData.reverse());
     }
   }, [data]);
@@ -83,10 +83,8 @@ const ChatSection: FC<props> = ({ data, chatList, setChatList }) => {
                   email: string;
                   avatar: { url: string };
                 };
-                time: string;
                 isRead: boolean;
                 isDeleted: boolean;
-                isEdited: boolean;
               }
             | undefined,
           index: Key | null | undefined

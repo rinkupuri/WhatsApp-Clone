@@ -6,17 +6,18 @@ import {
   useSendMessageMutation,
 } from "@/redux/Apis/message.api";
 import { RootState } from "@/redux/Store";
-import React, { FC, useEffect, useRef } from "react";
+import React, { FC, KeyboardEvent, useEffect, useRef } from "react";
 import { BsEmojiSmile } from "react-icons/bs";
 import { IoDocumentAttach, IoSend } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { chat } from "../ChatSection/ChatSection";
 
 interface props {
-  chatList: Array<chat> | undefined;
-  setChatList: (value: Array<chat>) => void;
+  chatList: chat[] | undefined;
+  setChatList: (value: any) => void;
+  socket?: any;
 }
-const InputSection: FC<props> = ({ chatList, setChatList }) => {
+const InputSection: FC<props> = ({ socket, chatList, setChatList }) => {
   const message: string | any = useRef<any>("");
   const { chat } = useSelector((state: RootState) => state.chat);
   const { user }: { user: any } = useSelector((state: RootState) => state.auth);
@@ -36,20 +37,25 @@ const InputSection: FC<props> = ({ chatList, setChatList }) => {
     }
   );
 
-  const handelSend = () => {
-    console.log(user?.id);
+  const handelSend = async () => {
+    const messagevalue = message.current.value;
+    message.current.value = "";
+    const chatid: string | undefined = `${Math.round(
+      Math.random() * 1000000000000
+    )}`;
     if (chatList) {
       const chatDataList: any = [...chatList];
-      setChatList(
-        [
+      setChatList((prev: any) => {
+        const chatDataList = [...prev];
+        return [
           ...chatDataList.reverse(),
           {
-            id: user?.id,
+            id: chatid,
             senderId: user?.id,
             receiverId: chat.users
               .filter((id: string) => id !== user?.id)
               .toString(),
-            message: message.current.value,
+            message: messagevalue,
             isDeleted: false,
             isRead: false,
             unread: 0,
@@ -65,25 +71,66 @@ const InputSection: FC<props> = ({ chatList, setChatList }) => {
             },
             receiver: chat.user,
           },
-        ].reverse()
-      );
+        ].reverse() as any;
+      });
     }
-
-    sendMessage({
-      message: message.current.value,
+    await sendMessage({
+      message: messagevalue,
       chatId: chat.chatId,
       receiverId: chat.users.filter((id: string) => id !== user?.id).toString(),
     }).then(() => {
-      refetch();
-      refetchChat();
+      socket.emit("message", {
+        message: messagevalue,
+        chatId: chat.chatId,
+        receiverId: chat.users
+          .filter((id: string) => id !== user?.id)
+          .toString(),
+        messageUser: {
+          id: user?.id,
+          senderId: user?.id,
+          receiverId: chat.users
+            .filter((id: string) => id !== user?.id)
+            .toString(),
+          message: messagevalue,
+          isDeleted: false,
+          isRead: false,
+          unread: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          chatId: chat?.chatId,
+          status: "sent",
+          sender: {
+            id: user?.id,
+            name: user.name,
+            email: user.email,
+            avatar: user.avatar,
+          },
+          receiver: chat.user,
+        },
+      });
+      setChatList((prev: chat[]) => {
+        const chatS = prev.map((chat: chat) => {
+          if (chat.id === chatid) {
+            return { ...chat, status: "sent" };
+          }
+          return chat;
+        });
+        return [...chatS];
+      });
     });
-    message.current.value = "";
+  };
+
+  const handelKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handelSend();
+    }
   };
   return (
     <div className="w-full border-[1px] flex h-[60px]">
       <div className="flex flex-[3]">
         <input
           ref={message}
+          onKeyPress={handelKeyPress}
           className="w-full px-4 outline-none focus:outline-none"
           placeholder="Enter Message here"
           type="text"

@@ -10,14 +10,21 @@ import { ErrorHandler } from './Errors/ErrorHandler';
 import { AuthGuard } from './Guards/AuthGuard';
 import { ChatModule } from './chat/chat.module';
 import { MessageModule } from './message/message.module';
+import { SocketGateway } from './socket/socket.gateway';
+import { SocketModule } from './socket/socket.module';
+import { UsersService } from './users/users.service';
+import { ChatService } from './chat/chat.service';
 
 @Module({
-  imports: [UsersModule, ChatModule, MessageModule],
+  imports: [UsersModule, ChatModule, MessageModule, SocketModule],
   controllers: [AppController],
   providers: [
     AppService,
     PrismaService,
+    UsersService,
+    ChatService,
     JwtService,
+    SocketGateway,
     { provide: APP_FILTER, useClass: ErrorHandler },
     { provide: APP_FILTER, useClass: AuthGuard },
   ],
