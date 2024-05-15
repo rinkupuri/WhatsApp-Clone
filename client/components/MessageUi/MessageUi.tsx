@@ -40,7 +40,7 @@ const MessageUi: FC<MessageType> = ({ chat, user }) => {
     <div
       className={`${
         chat?.sender?.id === user?.id && "flex-row-reverse"
-      } w-full  flex  px-2 items-center gap-4 mt-2 min-h-[30px]`}
+      } w-full messageClass  flex  px-2 items-center gap-4 mt-2 min-h-[30px]`}
     >
       <Avatar>
         <AvatarFallback>

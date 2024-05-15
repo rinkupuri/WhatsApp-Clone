@@ -9,63 +9,25 @@ import {
   useGetMessagesQuery,
   useUpdateAsReadMutation,
 } from "@/redux/Apis/message.api";
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { socket } from "../../app/socket";
-import { cloneDeep } from "lodash";
 
 const ChatPart = () => {
   const { chat } = useSelector((state: RootState) => state.chat);
-  const [chatId, setChatId] = useState(chat?.chatId ? chat.chatId : "");
-  const [chatList, setChatList] = useState([
-    {
-      senderId: "",
-      receiverId: "",
-      message: "",
-      isDeleted: false,
-      isRead: false,
-      unread: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      chatId: "",
-      status: "pending",
-      sender: {
-        id: "",
-        name: "",
-        email: "",
-        avatar: {
-          url: "",
-        },
-      },
-      receiver: {
-        id: "",
-        name: "",
-        email: "",
-        avatar: {
-          url: "",
-        },
-      },
-    },
-  ]);
+  const [chatList, setChatList] = useState<chat[]>([]);
   const { isLoading: chatLoading } = useGetChatsQuery({});
   const { user }: { user: any } = useSelector((state: RootState) => state.auth);
   const [readChat] = useUpdateAsReadMutation();
-  const {
-    data,
-    isLoading: messageLoading,
-    refetch,
-  } = useGetMessagesQuery(
-    { chatId: chat?.chatId },
-    {
-      skip: !chat?.chatId,
-      refetchOnMountOrArgChange: true,
-    }
-  );
 
   useEffect(() => {
     socket.on("connect", () => {
       console.log("connected");
-      socket.emit("updateStatus", { userId: user.id, status: "online" });
+      console.log(user.id);
+      socket.emit("updateStatus", { userId: user?.id, status: "online" });
     });
+    return () => {
+      socket.emit("leave", chat.chatId);
+    };
   }, []);
 
   useEffect(() => {
@@ -89,7 +51,6 @@ const ChatPart = () => {
             const chatDataList = [...prev];
             return [...chatDataList.reverse(), data].reverse();
           });
-          console.log(data.chatId);
           await readChat(data.chatId || "");
           socket.emit("read", data.chatId);
         } catch (e) {
@@ -99,7 +60,7 @@ const ChatPart = () => {
     };
   }, []);
   useEffect(() => {
-    socket.on("read", (data: chat) => {
+    socket.on("read", () => {
       console.log("Read");
       setChatList((prev) => {
         return prev.map((m) => {
@@ -114,14 +75,10 @@ const ChatPart = () => {
 
   return (
     <>
-      {!messageLoading && !chatLoading && chat.chatId && (
+      {!chatLoading && chat.chatId && (
         <>
           <ChatHeader />
-          <ChatSection
-            chatList={chatList}
-            setChatList={setChatList}
-            data={data}
-          />
+          <ChatSection chatList={chatList} setChatList={setChatList} />
           <InputSection
             socket={socket}
             chatList={chatList}

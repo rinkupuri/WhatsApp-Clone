@@ -15,8 +15,8 @@ const messageApi = apiSlice.injectEndpoints({
       }),
     }),
     getMessages: builder.query({
-      query: ({ chatId }: { chatId: string }) => ({
-        url: `/message/get/${chatId}`,
+      query: ({ chatId, page }: { chatId: string; page?: number }) => ({
+        url: `/message/get/${chatId}?page=${page}`,
         method: "GET",
         credentials: "include",
       }),

@@ -10,7 +10,8 @@ export const userApi = apiSlice.injectEndpoints({
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include" as const,
+        withCredentials: true,
       }),
     }),
     me: builder.query({
@@ -20,7 +21,8 @@ export const userApi = apiSlice.injectEndpoints({
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include" as const,
+        withCredentials: true,
       }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {

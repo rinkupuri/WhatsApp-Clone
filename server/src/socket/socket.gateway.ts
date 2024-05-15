@@ -5,7 +5,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ChatService } from 'src/chat/chat.service';
 import { UsersService } from 'src/users/users.service';
 
 @WebSocketGateway({
@@ -13,10 +12,13 @@ import { UsersService } from 'src/users/users.service';
 })
 export class SocketGateway {
   constructor(private readonly userService: UsersService) {}
+  session = new Map<string, string>();
   @WebSocketServer() server: Server;
   @SubscribeMessage('message')
-  async handleMessage(client: Socket, payload: any): Promise<string> {
+  handleMessage(client: Socket, payload: any): string {
+    console.log(payload);
     client.to(payload.chatId).emit('message', payload.messageUser);
+    client.to(payload.messageUser.receiverId).emit('chat', payload.messageUser);
     return 'Hello world!';
   }
   @SubscribeMessage('connect')
@@ -41,18 +43,29 @@ export class SocketGateway {
   }
 
   @SubscribeMessage('updateStatus')
-  handleEvent(@MessageBody() data: { userId: string; status: string }): string {
-    console.log(data);
+  handleEvent(
+    client: Socket,
+    data: { userId: string; status: string },
+  ): string {
+    console.log(data.userId);
+    this.session.set(client.id, data.userId);
     this.userService.updateUser({ id: data.userId, status: data.status });
     return 'data';
   }
 
   handleDisconnect(client: Socket) {
+    // console.log(client.id, this.session);
+    // console.log(this.session.get(client.id));
+    // this.userService.updateUser({
+    //   id: this.session.get(client.id),
+    //   status: new Date().toString(),
+    // });
     console.log(`Client disconnected: ${client.id}`);
-    // Add any logic you want to execute when a client disconnects
+    // Add any logic you want to execute when a client disconnects 1
   }
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
+    client.emit('connected', client.id);
     // Add any logic you want to execute when a client connects
   }
 }

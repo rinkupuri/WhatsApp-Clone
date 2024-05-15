@@ -53,7 +53,7 @@ export class UsersService {
     return user;
   }
 
-  async updateUser(data: { id: string; status: string }): Promise<string> {
+  async updateUser(data: { id: string; status: any }): Promise<string> {
     await this.prismaService.user.update({
       where: {
         id: data.id,

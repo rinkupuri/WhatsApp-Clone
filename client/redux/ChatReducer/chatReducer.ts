@@ -15,6 +15,7 @@ export const chatApi = createSlice({
         name: "",
         email: "",
         avatar: "",
+        status: "",
       },
     },
   },

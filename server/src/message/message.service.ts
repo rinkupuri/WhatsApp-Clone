@@ -33,11 +33,18 @@ export class MessageService {
   }
 
   // find all message of a specific user
-  async findAll(chatId: string) {
+  async findAll(chatId: string, page: number) {
     try {
+      page -= 1;
+      console.log(page);
       const chats: any = await this.prisma.message.findMany({
         where: {
           chatId,
+        },
+        skip: page * 50,
+        take: 50,
+        orderBy: {
+          createdAt: 'desc',
         },
       });
       await Promise.all(
@@ -92,7 +99,17 @@ export class MessageService {
           },
         ),
       );
-      return chats;
+      const totalResult = await this.prisma.message.count({
+        where: {
+          chatId,
+        },
+      });
+      chats.total = totalResult;
+      chats.page = page + 1;
+      chats.limit = 50;
+      chats.pages = Math.ceil(totalResult / 50);
+      console.log(chats);
+      return chats.reverse();
     } catch (e) {
       console.log(e);
     }

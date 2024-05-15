@@ -10,17 +10,18 @@ import { useSelector } from "react-redux";
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user }: { user: any } = useSelector((state: RootState) => state.auth);
   const { data, isLoading } = useGetChatsQuery({});
-  const { data: dataMe, isLoading: meLoading } = useMeQuery({});
+  const { data: dataMe, isError, isLoading: meLoading } = useMeQuery({});
   useEffect(() => {
     if (
       window.location.pathname !== "/login" &&
       window.location.pathname !== "/register" &&
       !meLoading &&
-      !dataMe?.id
+      !dataMe?.id &&
+      !isError
     ) {
       return redirect("/login");
     }
-  }, [dataMe, meLoading]);
+  }, [dataMe]);
   return <>{!isLoading && !meLoading && children}</>;
 };
 

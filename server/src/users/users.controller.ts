@@ -43,7 +43,11 @@ export class UsersController {
     const user = await this.usersService.loginUser(createUserDto);
     const genToken = new SendToken(this.jwtService);
     const token = await genToken.sendToken(user);
-    res.cookie('token', token);
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+    });
     return res.status(HttpStatus.ACCEPTED).json({ user, token });
   }
 

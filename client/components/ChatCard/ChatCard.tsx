@@ -10,6 +10,7 @@ import {
 import { FC } from "react";
 import { Store } from "@/redux/Store";
 import { setChat } from "@/redux/ChatReducer/chatReducer";
+import { cloneDeep } from "lodash";
 
 export interface ChatCardProps {
   chat: {
@@ -29,13 +30,24 @@ export interface ChatCardProps {
       name: string;
       email: string;
       avatar: string;
+      status: string;
     };
   };
+  setChats: (chat: any) => void;
 }
 
-const ChatCard: FC<ChatCardProps> = ({ chat }) => {
+const ChatCard: FC<ChatCardProps> = ({ chat, setChats }) => {
   const handelChatClick = () => {
     Store.dispatch(setChat({ chat: chat }));
+    setChats((prev: any) => {
+      return prev.map((chatData: any) => {
+        const data = cloneDeep(chatData);
+        if (data.id === chat.id) {
+          data.unread = 0;
+        }
+        return data;
+      });
+    });
   };
   return (
     <div
@@ -64,7 +76,7 @@ const ChatCard: FC<ChatCardProps> = ({ chat }) => {
           <div className="flex gap-4 mr-2 justify-center items-center">
             {chat.unread > 0 && (
               <span className="w-6 h-6 text-[12px] font-[600] text-center flex justify-center items-center  rounded-full bg-primary text-black  ">
-                1
+                {chat.unread}
               </span>
             )}
             {!chat.isRead && (

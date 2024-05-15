@@ -11,7 +11,6 @@ import { ChatService } from 'src/chat/chat.service';
   controllers: [],
   providers: [
     UsersService,
-    SocketGateway,
     ChatService,
     UsersService,
     PrismaService,
