@@ -5,7 +5,7 @@ import {
   useGetMessagesQuery,
   useSendMessageMutation,
 } from "@/redux/Apis/message.api";
-import { RootState } from "@/redux/Store";
+import { RootState, Store } from "@/redux/Store";
 import React, { FC, KeyboardEvent, useEffect, useRef } from "react";
 import { BsEmojiSmile } from "react-icons/bs";
 import { IoDocumentAttach, IoSend } from "react-icons/io5";
@@ -78,35 +78,13 @@ const InputSection: FC<props> = ({ socket, chatList, setChatList }) => {
       message: messagevalue,
       chatId: chat.chatId,
       receiverId: chat.users.filter((id: string) => id !== user?.id).toString(),
+    }).then((res) => {
+      const { data } = res as any;
+      if (data?.id) {
+        socket.emit("message", data);
+      }
     });
-    console.log("emit");
-    socket.emit("message", {
-      message: messagevalue,
-      chatId: chat.chatId,
-      receiverId: chat.users.filter((id: string) => id !== user?.id).toString(),
-      messageUser: {
-        id: chatid,
-        senderId: user?.id,
-        receiverId: chat.users
-          .filter((id: string) => id !== user?.id)
-          .toString(),
-        message: messagevalue,
-        isDeleted: false,
-        isRead: false,
-        unread: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        chatId: chat?.chatId,
-        status: "sent",
-        sender: {
-          id: user?.id,
-          name: user.name,
-          email: user.email,
-          avatar: user.avatar,
-        },
-        receiver: chat.user,
-      },
-    });
+
     setChatList((prev: chat[]) => {
       const chatS = prev.map((chat: chat) => {
         if (chat.id === chatid) {

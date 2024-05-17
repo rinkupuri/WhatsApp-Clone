@@ -1,14 +1,15 @@
 "use client";
 import { useGetChatsQuery } from "@/redux/Apis/chat.api";
 import ChatCard from "../ChatCard/ChatCard";
-import { useEffect, useState } from "react";
+import { Key, use, useEffect, useRef, useState } from "react";
 import { socket } from "@/app/socket";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/Store";
-import { cloneDeep } from "lodash";
+import { cloneDeep, update } from "lodash";
 import { useUpdateAsReadMutation } from "@/redux/Apis/message.api";
 
 const Chats = () => {
+  const { chat } = useSelector((state: RootState) => state.chat);
   const { user }: { user: any } = useSelector((state: RootState) => state.auth);
   const { data, isLoading, isSuccess } = useGetChatsQuery(
     {},
@@ -16,8 +17,8 @@ const Chats = () => {
       refetchOnMountOrArgChange: true,
     }
   );
-  const [updateChat] = useUpdateAsReadMutation();
-  const [chats, setChats] = useState<any>(cloneDeep(data.chat));
+  const [updateStatus] = useUpdateAsReadMutation();
+  const [chats, setChats] = useState<any>(cloneDeep(data?.chat));
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -26,9 +27,12 @@ const Chats = () => {
   });
 
   useEffect(() => {
-    return () => {
-      socket.on("chat", (data: any) => {
+    socket.on("chat", (data: any) => {
+      if (!(chat.users.length > 1) && !chat.users.includes(data.senderId)) {
         const mess = cloneDeep(data);
+        console.log(data);
+        updateStatus({ chatId: data.id, status: "delivered" });
+        socket.emit("read", { chatId: data.chatId, status: "delivered" });
         setChats((prev: any) => [
           ...prev
             .map((chat: any) => {
@@ -43,16 +47,21 @@ const Chats = () => {
             .sort((a: any, b: any) => b.unread - a.unread),
         ]);
         console.log(chats);
-      });
+      }
+    });
+    return () => {
+      socket.off("chat");
     };
-  }, []);
+  }, [chat]);
 
   return (
     <>
       <div className="flex *:transition-all duration-500  w-full flex-col">
         {chats &&
-          chats?.map((chat: any) => (
-            <ChatCard setChats={setChats} chat={chat} />
+          chats?.map((chat: any, index: number | Key) => (
+            <div key={index} className="w-full chatCard">
+              <ChatCard setChats={setChats} chat={chat} />
+            </div>
           ))}
       </div>
     </>

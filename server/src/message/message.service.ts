@@ -115,19 +115,32 @@ export class MessageService {
     }
   }
   // mark all message as read after chat open
-  async updateAsRead(body: any, chatId: string) {
+  async updateAsRead(
+    body: any,
+    recivedData: { chatId: string; status: string },
+  ) {
     const { user } = body;
+    const chatId = recivedData.chatId;
+    const status = recivedData.status;
+    const data = {
+      isRead: status === 'Read' ? true : false,
+      status,
+    };
+    const where =
+      status === 'Read'
+        ? {
+            chatId: chatId,
+            receiverId: user.id,
+          }
+        : {
+            id: chatId,
+            receiverId: user.id,
+          };
     try {
       const messages = await this.prisma.message.updateMany({
-        where: {
-          chatId: chatId,
-          receiverId: user.id,
-        },
+        where,
 
-        data: {
-          status: 'Read',
-          isRead: true,
-        },
+        data,
       });
     } catch (e) {
       console.log(e);

@@ -22,8 +22,8 @@ const messageApi = apiSlice.injectEndpoints({
       }),
     }),
     updateAsRead: builder.mutation({
-      query: (chatId: string) => ({
-        url: `/message/read/${chatId}`,
+      query: ({ chatId, status }: { chatId: string; status: string }) => ({
+        url: `/message/read/${chatId}?status=${status}`,
         method: "Put",
         credentials: "include",
       }),

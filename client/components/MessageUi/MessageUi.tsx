@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { LiaCheckDoubleSolid } from "react-icons/lia";
 import { FC } from "react";
 import { Check, Clock9 } from "lucide-react";
+import { timeSeter } from "@/lib/utils";
 
 interface MessageType {
   user: {
@@ -32,6 +33,7 @@ interface MessageType {
     };
     isRead: boolean;
     isDeleted: boolean;
+    createdAt: Date;
   };
 }
 
@@ -43,15 +45,11 @@ const MessageUi: FC<MessageType> = ({ chat, user }) => {
       } w-full messageClass  flex  px-2 items-center gap-4 mt-2 min-h-[30px]`}
     >
       <Avatar>
-        <AvatarFallback>
-          {chat?.sender?.id === user?.id
-            ? chat?.sender?.name.split(" ").map((nm) => {
-                return nm.charAt(0).toLocaleUpperCase();
-              })
-            : chat?.receiver?.name.split(" ").map((c) => {
-                return c.charAt(0).toLocaleUpperCase();
-              })}
-        </AvatarFallback>
+        {chat?.sender?.id === user?.id ? (
+          <AvatarFallback>{chat?.sender?.name}</AvatarFallback>
+        ) : (
+          <AvatarFallback>{chat?.receiver?.name}</AvatarFallback>
+        )}
       </Avatar>
       <div
         className={`${
@@ -64,7 +62,9 @@ const MessageUi: FC<MessageType> = ({ chat, user }) => {
           <p className="text-[14px] ">{chat?.message || "sample message"}</p>
         </div>
         <div className="flex gap-1 min-h-[40px]  justify-end items-end">
-          <p className="text-[10px]  text-black/80">2:30pm</p>
+          <p className="text-[10px]  text-black/80">
+            {chat?.createdAt && timeSeter(chat?.createdAt)}
+          </p>
           {chat?.sender?.id === user?.id && (
             <>
               {chat?.status && chat?.status === "sent" ? (

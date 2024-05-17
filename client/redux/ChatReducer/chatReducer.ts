@@ -24,6 +24,23 @@ export const chatApi = createSlice({
       console.log(action.payload.chat);
       state.chat = action.payload.chat;
     },
+    removeChat(state) {
+      state.chat = {
+        id: "",
+        users: [""],
+        lastmessage: { message: "", date: new Date() },
+        isDeleted: false,
+        isRead: true,
+        unread: 0,
+        chatId: "",
+        user: {
+          name: "",
+          email: "",
+          avatar: "",
+          status: "",
+        },
+      };
+    },
   },
 });
-export const { setChat } = chatApi.actions;
+export const { setChat, removeChat } = chatApi.actions;

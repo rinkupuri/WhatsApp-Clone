@@ -17,8 +17,8 @@ export class SocketGateway {
   @SubscribeMessage('message')
   handleMessage(client: Socket, payload: any): string {
     console.log(payload);
-    client.to(payload.chatId).emit('message', payload.messageUser);
-    client.to(payload.messageUser.receiverId).emit('chat', payload.messageUser);
+    client.to(payload.chatId).emit('message', payload);
+    client.to(payload.receiverId).emit('chat', payload);
     return 'Hello world!';
   }
   @SubscribeMessage('connect')
@@ -26,9 +26,12 @@ export class SocketGateway {
     return 'Hello world!';
   }
   @SubscribeMessage('read')
-  handleRead(client: Socket, payload: any): string {
+  handleRead(
+    client: Socket,
+    payload: { chatId: string; status: string },
+  ): string {
     console.log(payload);
-    client.to(payload).emit('read', payload);
+    client.to(payload.chatId).emit('read', payload);
     return 'Hello world!';
   }
   @SubscribeMessage('join')

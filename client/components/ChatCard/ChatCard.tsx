@@ -11,6 +11,7 @@ import { FC } from "react";
 import { Store } from "@/redux/Store";
 import { setChat } from "@/redux/ChatReducer/chatReducer";
 import { cloneDeep } from "lodash";
+import { timeSeter } from "@/lib/utils";
 
 export interface ChatCardProps {
   chat: {
@@ -70,8 +71,9 @@ const ChatCard: FC<ChatCardProps> = ({ chat, setChats }) => {
           </span>
         </div>
         <div className="flex gap-2 justify-center items-center flex-col flex-[1]">
-          <span className="text-xs">
-            {chat.lastmessage?.date.toString().split("T")[0].toString()}
+          <span className="text-[10px]">
+            {moment(chat.lastmessage?.date).fromNow() &&
+              timeSeter(chat.lastmessage.date)}
           </span>
           <div className="flex gap-4 mr-2 justify-center items-center">
             {chat.unread > 0 && (

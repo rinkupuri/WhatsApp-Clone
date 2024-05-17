@@ -39,9 +39,13 @@ export class MessageController {
   updateAsRead(
     @Body() updateMessageDto: CreateMessageDto,
     @Param() param: { chatId: string },
+    @Query('status') status: string,
   ) {
-    console.log(updateMessageDto, param.chatId);
-    return this.messageService.updateAsRead(updateMessageDto, param.chatId);
+    console.log(updateMessageDto, param);
+    return this.messageService.updateAsRead(updateMessageDto, {
+      chatId: param.chatId,
+      status,
+    });
   }
 
   @Delete(':id')

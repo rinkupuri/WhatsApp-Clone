@@ -99,9 +99,7 @@ const ChatSection: FC<props> = ({ chatList, setChatList }) => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          console.log(entry);
           if (entry.isIntersecting) {
-            console.log(entry.target);
             if (chatDiv.current) observer.unobserve(entry.target);
 
             if (!isLoading) setPage((prev: number) => prev + 1);
@@ -114,10 +112,11 @@ const ChatSection: FC<props> = ({ chatList, setChatList }) => {
         threshold: 0,
       }
     );
-
-    if (chatDiv.current) {
-      observer.observe(chatDiv.current);
-    }
+    if (chatList?.length)
+      if (chatList?.length > 50)
+        if (chatDiv.current) {
+          observer.observe(chatDiv.current);
+        }
   }, [chatList]);
 
   return (
@@ -152,7 +151,6 @@ const ChatSection: FC<props> = ({ chatList, setChatList }) => {
                 <div key={index} ref={chatDiv} className="w-full">
                   <MessageUi chat={chat} user={user} />
                 </div>
-                {console.log(isLoading)}
                 {isLoading && (
                   <div className="flex justify-center items-center">
                     <div className="w-[30px] rounded-full  border-b border-black animate-spin items-center h-[30px]"></div>

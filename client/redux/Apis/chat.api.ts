@@ -22,8 +22,8 @@ export const chatApi = apiSlice.injectEndpoints({
       query: () => ({
         url: "/chat/get",
         method: "GET",
-        credentials: "include",
       }),
+      transformResponse: (response: any) => response,
     }),
   }),
 });

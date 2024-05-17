@@ -3,7 +3,7 @@ import ChatHeader from "../Headers/ChatHeader";
 import ChatSection, { chat } from "../ChatSection/ChatSection";
 import InputSection from "../InputSection/InputSection";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/Store";
+import { RootState, Store } from "@/redux/Store";
 import { useGetChatsQuery } from "@/redux/Apis/chat.api";
 import {
   useGetMessagesQuery,
@@ -11,6 +11,7 @@ import {
 } from "@/redux/Apis/message.api";
 import { useEffect, useState } from "react";
 import { socket } from "../../app/socket";
+import { removeChat } from "@/redux/ChatReducer/chatReducer";
 
 const ChatPart = () => {
   const { chat } = useSelector((state: RootState) => state.chat);
@@ -21,8 +22,6 @@ const ChatPart = () => {
 
   useEffect(() => {
     socket.on("connect", () => {
-      console.log("connected");
-      console.log(user.id);
       socket.emit("updateStatus", { userId: user?.id, status: "online" });
     });
     return () => {
@@ -33,9 +32,8 @@ const ChatPart = () => {
   useEffect(() => {
     if (chat.chatId) {
       socket.emit("join", chat.chatId);
-      readChat(chat.chatId).then(() => {
-        socket.emit("read", chat.chatId);
-        console.log("set read");
+      readChat({ chatId: chat?.chatId, status: "Read" }).then(() => {
+        socket.emit("read", { chatId: chat?.chatId, status: "Read" });
       });
     }
     return () => {
@@ -45,33 +43,49 @@ const ChatPart = () => {
   useEffect(() => {
     return () => {
       socket.on("message", async (data: chat) => {
-        console.log(data.chatId);
         try {
           setChatList((prev: any) => {
             const chatDataList = [...prev];
             return [...chatDataList.reverse(), data].reverse();
           });
-          await readChat(data.chatId || "");
-          socket.emit("read", data.chatId);
-        } catch (e) {
-          console.log(e);
-        }
+          if (data?.chatId)
+            await readChat({ chatId: data?.chatId, status: "Read" });
+          socket.emit("read", { chatId: data.chatId, status: "Read" });
+        } catch (e) {}
       });
     };
   }, []);
   useEffect(() => {
-    socket.on("read", () => {
-      console.log("Read");
+    socket.on("read", (data: { chatId: string; status: string }) => {
+      const { chatId, status } = data;
+      console.log(status);
       setChatList((prev) => {
         return prev.map((m) => {
-          if (m.senderId === user.id && m.status === "sent") {
-            m.status = "Read";
+          if (
+            m.senderId === user.id &&
+            m.status !== "Read" &&
+            m.status !== "pending"
+          ) {
+            m.status = status;
           }
           return m;
         });
       });
     });
   }, []);
+
+  useEffect(() => {
+    if (chat?.chatId)
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          socket.emit("leave", chat?.chatId);
+          Store.dispatch(removeChat());
+        }
+      });
+    return () => {
+      document.removeEventListener("keydown", (e) => {});
+    };
+  }, [chat?.chatId]);
 
   return (
     <>
