@@ -4,8 +4,12 @@ import FramerDiv from "../Animation/FramerDiv";
 import { Phone } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { MdCall, MdCallEnd } from "react-icons/md";
+import { useContext } from "react";
+import { CallContext } from "@/Context/CallContext";
 
 const Call = () => {
+  const { answerCall } = useContext(CallContext);
+
   return (
     <div className="flex justify-center items-center fixed top-0 left-0 w-full">
       <motion.div
@@ -28,7 +32,10 @@ const Call = () => {
             </div>
           </div>
         </div>
-        <div className="flex justify-center items-center rounded-full ml-4 w-12 h-12  bg-lime-600">
+        <div
+          onClick={answerCall}
+          className="flex  justify-center items-center rounded-full ml-4 w-12 h-12  bg-lime-600"
+        >
           <MdCallEnd color="white" size={24} />
         </div>
       </motion.div>

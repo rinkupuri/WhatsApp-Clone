@@ -48,6 +48,8 @@ const ChatPart = () => {
             const chatDataList = [...prev];
             return [...chatDataList.reverse(), data].reverse();
           });
+          const audio = new Audio("./whatsapp_incoming.mp3");
+          audio.play().catch((e) => console.log(e));
           if (data?.chatId)
             await readChat({ chatId: data?.chatId, status: "Read" });
           socket.emit("read", { chatId: data.chatId, status: "Read" });

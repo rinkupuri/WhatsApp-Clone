@@ -1,12 +1,14 @@
 "use client";
 import { useGetChatsQuery } from "@/redux/Apis/chat.api";
 import ChatCard from "../ChatCard/ChatCard";
-import { Key, use, useEffect, useRef, useState } from "react";
+import { Key, use, useContext, useEffect, useRef, useState } from "react";
 import { socket } from "@/app/socket";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/Store";
 import { cloneDeep, update } from "lodash";
 import { useUpdateAsReadMutation } from "@/redux/Apis/message.api";
+import { CallContext } from "@/Context/CallContext";
+import Call from "../Call/Call";
 
 const Chats = () => {
   const { chat } = useSelector((state: RootState) => state.chat);
@@ -19,7 +21,8 @@ const Chats = () => {
   );
   const [updateStatus] = useUpdateAsReadMutation();
   const [chats, setChats] = useState<any>(cloneDeep(data?.chat));
-
+  const { call } = useContext(CallContext);
+  console.log(call);
   useEffect(() => {
     socket.on("connect", () => {
       socket.emit("join", user.id);
@@ -57,6 +60,8 @@ const Chats = () => {
   return (
     <>
       <div className="flex *:transition-all duration-500  w-full flex-col">
+        {call && <Call />}
+
         {chats &&
           chats?.map((chat: any, index: number | Key) => (
             <div key={index} className="w-full chatCard">

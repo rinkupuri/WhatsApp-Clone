@@ -5,6 +5,7 @@ import ProviderLayout from "@/Providers/ProviderLayout";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "@/Providers/Providers";
 import Call from "@/components/Call/Call";
+import CallProvider from "@/Context/CallContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,8 +24,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <ProviderLayout>
           <ProtectedRoute>
-            {children}
-            <Call />
+            <CallProvider>
+              {children}
+              {/* <Call /> */}
+            </CallProvider>
             <Toaster position="top-center" reverseOrder={false} />
           </ProtectedRoute>
         </ProviderLayout>

@@ -104,12 +104,17 @@ export class MessageService {
           chatId,
         },
       });
-      chats.total = totalResult;
-      chats.page = page + 1;
-      chats.limit = 50;
-      chats.pages = Math.ceil(totalResult / 50);
-      console.log(chats);
-      return chats.reverse();
+      let meta = {
+        total: 0,
+        page: 0,
+        limit: 0,
+        pages: 0,
+      };
+      meta.total = totalResult;
+      meta.page = page + 1;
+      meta.limit = 50;
+      meta.pages = Math.ceil(totalResult / 50);
+      return { chats: chats.reverse(), meta };
     } catch (e) {
       console.log(e);
     }

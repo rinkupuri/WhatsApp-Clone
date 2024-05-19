@@ -12,6 +12,7 @@ export const chatApi = createSlice({
       unread: 0,
       chatId: "",
       user: {
+        id: "",
         name: "",
         email: "",
         avatar: "",
@@ -34,6 +35,7 @@ export const chatApi = createSlice({
         unread: 0,
         chatId: "",
         user: {
+          id: "",
           name: "",
           email: "",
           avatar: "",

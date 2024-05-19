@@ -28,6 +28,7 @@ export interface ChatCardProps {
 
     chatId: string;
     user: {
+      id: string;
       name: string;
       email: string;
       avatar: string;

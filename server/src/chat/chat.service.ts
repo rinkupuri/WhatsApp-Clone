@@ -68,7 +68,13 @@ export class ChatService {
             where: {
               id: chatData.users.find((id: any) => id !== body.user.id),
             },
-            select: { name: true, email: true, avatar: true, status: true },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true,
+              status: true,
+            },
           });
           chat[index].user = user;
           return user;

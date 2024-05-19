@@ -38,11 +38,16 @@ interface props {
 const ChatSection: FC<props> = ({ chatList, setChatList }) => {
   const chatDiv = useRef<HTMLDivElement | null>(null);
   const [page, setPage] = useState(1);
+  const [metaData, setMetaData] = useState({
+    limit: 0,
+    page: 0,
+    pages: 0,
+    total: 0,
+  });
   const { chat } = useSelector((state: RootState) => state.chat);
   const {
     data: msgData,
     isLoading,
-    isSuccess,
     refetch,
   } = useGetMessagesQuery(
     { chatId: chat.chatId, page },
@@ -77,12 +82,24 @@ const ChatSection: FC<props> = ({ chatList, setChatList }) => {
 
   useEffect(() => {
     chat.chatId && setChatList([]);
-    refetch();
+    setPage(1);
   }, [chat.chatId]);
 
   useEffect(() => {
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 50) {
+        console.log("scrolled");
+      }
+    });
+    return () => {
+      window.removeEventListener("scroll", () => {});
+    };
+  }, []);
+
+  useEffect(() => {
     if (msgData) {
-      const newChatData = cloneDeep(msgData).reverse();
+      const newChatData = cloneDeep(msgData?.chats).reverse();
+      setMetaData(cloneDeep(msgData.meta));
       setChatList((prevChatList: chat[]) => {
         const updatedChatList = [...prevChatList];
         newChatData.forEach((newChat: chat) => {
@@ -101,23 +118,24 @@ const ChatSection: FC<props> = ({ chatList, setChatList }) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             if (chatDiv.current) observer.unobserve(entry.target);
-
-            if (!isLoading) setPage((prev: number) => prev + 1);
+            if (metaData.pages > 1)
+              if (page < metaData.pages + 1)
+                if (!isLoading) setPage((prev: number) => prev + 1);
           }
         });
       },
       {
         root: null,
-        rootMargin: "300px",
+        rootMargin: "1000px",
         threshold: 0,
       }
     );
-    if (chatList?.length)
-      if (chatList?.length > 50)
-        if (chatDiv.current) {
-          observer.observe(chatDiv.current);
-        }
-  }, [chatList]);
+    if (chatDiv.current) {
+      observer.observe(chatDiv.current);
+    }
+
+    console.log(chatDiv.current);
+  }, [chatList, chat.chatId]);
 
   return (
     <>
@@ -143,6 +161,7 @@ const ChatSection: FC<props> = ({ chatList, setChatList }) => {
                     };
                     isRead: boolean;
                     isDeleted: boolean;
+                    createdAt: Date;
                   }
                 | undefined,
               index: Key
