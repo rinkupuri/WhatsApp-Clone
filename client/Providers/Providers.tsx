@@ -12,7 +12,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { data, isLoading } = useGetChatsQuery({});
   const { data: dataMe, isError, isLoading: meLoading } = useMeQuery({});
   useEffect(() => {
-    console.log(window.location.pathname);
     if (!isLoading)
       if (!user?.id) {
         window.location.pathname !== "/login" &&

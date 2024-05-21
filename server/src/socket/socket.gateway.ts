@@ -96,8 +96,9 @@ export class SocketGateway {
   }
 
   // rejecting aur cal ending
-  @SubscribeMessage('rejectCall')
+  @SubscribeMessage('callReject')
   handleRejectCall(client: Socket, data: any) {
-    client.to(data.to).emit('callRejected');
+    console.log(data);
+    // client.to(data.to).emit('callReject');
   }
 }

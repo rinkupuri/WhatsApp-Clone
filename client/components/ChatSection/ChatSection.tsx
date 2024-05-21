@@ -164,17 +164,12 @@ const ChatSection: FC<props> = ({ chatList, setChatList }) => {
                     createdAt: Date;
                   }
                 | undefined,
-              index: Key
+              index: number | Key | null | undefined
             ) => (
               <>
                 <div key={index} ref={chatDiv} className="w-full">
                   <MessageUi chat={chat} user={user} />
                 </div>
-                {isLoading && (
-                  <div className="flex justify-center items-center">
-                    <div className="w-[30px] rounded-full  border-b border-black animate-spin items-center h-[30px]"></div>
-                  </div>
-                )}
               </>
             )
           )}

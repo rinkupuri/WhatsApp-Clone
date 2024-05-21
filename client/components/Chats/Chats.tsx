@@ -1,5 +1,5 @@
 "use client";
-import { useGetChatsQuery } from "@/redux/Apis/chat.api";
+import { useDeleteChatMutation, useGetChatsQuery } from "@/redux/Apis/chat.api";
 import ChatCard from "../ChatCard/ChatCard";
 import { Key, use, useContext, useEffect, useRef, useState } from "react";
 import { socket } from "@/app/socket";
@@ -9,31 +9,48 @@ import { cloneDeep, update } from "lodash";
 import { useUpdateAsReadMutation } from "@/redux/Apis/message.api";
 import { CallContext } from "@/Context/CallContext";
 import Call from "../Call/Call";
+import { Clicker_Script } from "next/font/google";
 
 const Chats = () => {
+  // user chat Redux State
   const { chat } = useSelector((state: RootState) => state.chat);
+
+  // User data Redux Data
   const { user }: { user: any } = useSelector((state: RootState) => state.auth);
+
+  // delete message querry hook
+  const [deleteMessage] = useDeleteChatMutation();
+
+  //  Geting data from Server By redux Querry
   const { data, isLoading, isSuccess } = useGetChatsQuery(
     {},
     {
       refetchOnMountOrArgChange: true,
     }
   );
+
+  // Updating status message with Redux Querry
   const [updateStatus] = useUpdateAsReadMutation();
+
+  // main chat managment state hook
   const [chats, setChats] = useState<any>(cloneDeep(data?.chat));
+
+  // video call context hook
   const { call } = useContext(CallContext);
-  console.log(call);
+
+  // use effect to join socket group to receive meassges and call
   useEffect(() => {
     socket.on("connect", () => {
       socket.emit("join", user.id);
     });
   });
 
+  // Receiving new and updating all into frontend
+
   useEffect(() => {
     socket.on("chat", (data: any) => {
       if (!(chat.users.length > 1) && !chat.users.includes(data.senderId)) {
         const mess = cloneDeep(data);
-        console.log(data);
         updateStatus({ chatId: data.id, status: "delivered" });
         socket.emit("read", { chatId: data.chatId, status: "delivered" });
         setChats((prev: any) => [
@@ -49,7 +66,6 @@ const Chats = () => {
             })
             .sort((a: any, b: any) => b.unread - a.unread),
         ]);
-        console.log(chats);
       }
     });
     return () => {
@@ -65,7 +81,11 @@ const Chats = () => {
         {chats &&
           chats?.map((chat: any, index: number | Key) => (
             <div key={index} className="w-full chatCard">
-              <ChatCard setChats={setChats} chat={chat} />
+              <ChatCard
+                deleteMessage={deleteMessage}
+                setChats={setChats}
+                chat={chat}
+              />
             </div>
           ))}
       </div>

@@ -29,18 +29,8 @@ export class UsersController {
     private readonly prismaService: PrismaService,
   ) {}
   @Post('create')
-  async create(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<RegisterRespopnce> {
+  async create(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
     const user = await this.usersService.register(createUserDto);
-    const genToken = new SendToken(this.jwtService);
-    const token = await genToken.sendToken(user);
-    return { user, token };
-  }
-
-  @Post('login')
-  async login(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
-    const user = await this.usersService.loginUser(createUserDto);
     const genToken = new SendToken(this.jwtService);
     const token = await genToken.sendToken(user);
     res.cookie('token', token, {
@@ -48,6 +38,15 @@ export class UsersController {
       secure: true,
       sameSite: 'none',
     });
+    return res.status(HttpStatus.ACCEPTED).json({ user, token });
+  }
+
+  @Post('login')
+  async login(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
+    const user = await this.usersService.loginUser(createUserDto);
+    const genToken = new SendToken(this.jwtService);
+    const token = await genToken.sendToken(user);
+    res.cookie('token', token, {});
     return res.status(HttpStatus.ACCEPTED).json({ user, token });
   }
 

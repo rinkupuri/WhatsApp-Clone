@@ -33,13 +33,21 @@ export class MessageService {
   }
 
   // find all message of a specific user
-  async findAll(chatId: string, page: number) {
+  async findAll(
+    chatId: string,
+    page: number,
+    req: { body: { user: { id: string } } },
+  ) {
     try {
       page -= 1;
-      console.log(page);
       const chats: any = await this.prisma.message.findMany({
         where: {
           chatId,
+          NOT: {
+            Deleted: {
+              has: req.body.user.id,
+            },
+          },
         },
         skip: page * 50,
         take: 50,
@@ -102,6 +110,11 @@ export class MessageService {
       const totalResult = await this.prisma.message.count({
         where: {
           chatId,
+          NOT: {
+            Deleted: {
+              has: req.body.user.id,
+            },
+          },
         },
       });
       let meta = {

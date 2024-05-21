@@ -37,7 +37,6 @@ const SearchBar = () => {
     }>
   >([]);
   useEffect(() => {
-    console.log(data);
     if (data) setUsers(data.filter((chat: any) => chat.id !== user.id));
   }, [data, isLoading]);
   const handelChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -7,6 +7,7 @@ import {
   Delete,
   Patch,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ChatUserDTO } from './dto/create-chat.dto';
@@ -23,15 +24,13 @@ export class ChatController {
   @Post('create')
   @UseGuards(AuthGuard)
   async create(@Body() chatUserDto: any) {
-    console.log(chatUserDto);
-
     return this.chatService.create(chatUserDto);
   }
 
   @Get('get')
   @UseGuards(AuthGuard)
-  findAll(@Body() body: any) {
-    return this.chatService.findAll(body);
+  findAll(@Body() body: any, @Req() req: any) {
+    return this.chatService.findAll(body, req);
   }
 
   @Get(':id')
@@ -45,7 +44,8 @@ export class ChatController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatService.remove(+id);
+  @UseGuards(AuthGuard)
+  remove(@Param('id') id: string, @Req() req) {
+    return this.chatService.remove(id, req);
   }
 }

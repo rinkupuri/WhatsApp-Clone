@@ -1,4 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  Req,
+} from '@nestjs/common';
 import { ChatUserDTO } from './dto/create-chat.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import { Response } from 'express';
@@ -43,19 +49,34 @@ export class ChatService {
         unread: 0,
         lastmessage: {
           message: '',
-          date: new Date(),
+          date: Date.now(),
         },
       },
     });
     return { chat };
   }
 
-  async findAll(body: any) {
+  async findAll(body: any, req: { body: { user: { id: string } } }) {
+    const id = req.body.user.id;
     const chat: any = await this.prismaService.chatUsers.findMany({
       where: {
         users: {
           has: body.user.id,
         },
+        OR: [
+          {
+            NOT: {
+              Deleted: {
+                has: id,
+              },
+            },
+          },
+          {
+            Deleted: {
+              isEmpty: true,
+            },
+          },
+        ],
       },
       orderBy: {
         updatedAt: 'desc',
@@ -80,9 +101,7 @@ export class ChatService {
           return user;
         }),
       );
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
 
     return { chat };
   }
@@ -91,7 +110,39 @@ export class ChatService {
     return `This action returns a #${id} chat`;
   }
 
-  remove(id: number) {
+  async remove(
+    id: string,
+    @Req() req: { body: { user: { id: string; name: string; email: string } } },
+  ) {
+    try {
+      const reqUser = req.body.user;
+      const isExist = await this.prismaService.chatUsers.findUnique({
+        where: { chatId: id, users: { has: reqUser.id } },
+      });
+      if (!isExist) throw new NotFoundException('chat not found');
+      const chat = await this.prismaService.chatUsers.update({
+        where: { chatId: id, users: { has: reqUser.id } },
+        data: {
+          Deleted: {
+            push: reqUser.id,
+          },
+        },
+      });
+      await this.prismaService.message.updateMany({
+        where: {
+          chatId: id,
+          OR: [{ senderId: reqUser.id }, { receiverId: reqUser.id }],
+        },
+        data: {
+          Deleted: {
+            push: reqUser.id,
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+
     return `This action removes a #${id} chat`;
   }
 }

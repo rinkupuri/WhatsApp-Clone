@@ -9,6 +9,7 @@ import {
   UseGuards,
   Put,
   Query,
+  Req,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -26,8 +27,8 @@ export class MessageController {
 
   @Get('get/:chatId')
   @UseGuards(AuthGuard)
-  findAll(@Param() chatId, @Query('page') page: number) {
-    return this.messageService.findAll(chatId.chatId, page);
+  findAll(@Param() chatId, @Query('page') page: number, @Req() req: any) {
+    return this.messageService.findAll(chatId.chatId, page, req);
   }
 
   @Get(':id')

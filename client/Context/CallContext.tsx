@@ -5,12 +5,13 @@ import Peer from "simple-peer";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/Store";
 import { socket } from "@/app/socket";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export const CallContext = createContext<any>(null);
 
 const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
+  const pathName = usePathname();
   const { user }: { user: any } = useSelector((state: RootState) => state.auth);
   const [stream, setStream] = useState<MediaStream>();
   const [call, setCall] = useState<any>();
@@ -20,16 +21,102 @@ const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const [vid, setVideo] = useState(true);
   const myVideo = useRef<any>();
   const userVideo = useRef<any>();
-
-  useEffect(() => {
-    console.log(stream);
-  }, [stream]);
+  const connectionRef = useRef<Peer.Instance>();
 
   useEffect(() => {
     socket.on("callUser", ({ from, signal }) => {
       setCall({ isCallReceived: true, from, signal });
     });
   }, []);
+
+  useEffect(() => {
+    if (pathName?.includes("/call/")) {
+      if (call)
+        navigator.mediaDevices
+          .getUserMedia({ video: vid, audio: audio })
+          .then((stream) => {
+            setStream(stream);
+            if (myVideo.current) {
+              myVideo.current.srcObject = stream;
+            }
+            if (stream?.active) {
+              const peer = new Peer({
+                initiator: false,
+                trickle: false,
+                stream,
+              });
+
+              console.log(call.signal);
+              // router.push(`call/${call.from.id}`);
+
+              peer.on("signal", (data) => {
+                socket.emit("answerCall", {
+                  signal: data,
+                  to: call?.from?.id,
+                  stream,
+                });
+              });
+              peer.on("stream", (stream: MediaStream) => {
+                console.log(stream);
+                if (userVideo.current) {
+                  userVideo.current.srcObject = stream;
+                }
+              });
+              socket.on("callReject", () => {
+                router.push("/");
+                setCallEnded(true);
+                setCallAccepted(false);
+                setCall(null);
+              });
+              peer.signal(call.signal);
+              connectionRef.current = peer;
+              // socket.on("rejectCall", () => {
+              //   router.push("/");
+              //   setCallEnded(true);
+              //   setCallAccepted(false);
+              //   setCall(null);
+              // });
+            }
+          });
+    } else {
+      setCall(null);
+      setCallAccepted(false);
+      setCallEnded(false);
+      setStream(undefined);
+      socket.emit("callReject");
+    }
+  }, [pathName]);
+
+  useEffect(() => {
+    // stream?.getTracks().forEach((track) => {
+    //   track.stop();
+    // });
+    if (call)
+      navigator.mediaDevices
+        .getUserMedia({ video: vid, audio: audio })
+        .then((newStream: MediaStream) => {
+          setStream(() => newStream);
+          if (myVideo.current) {
+            myVideo.current.srcObject = newStream;
+          }
+          if (stream)
+            if (connectionRef.current)
+              if (!vid) {
+                connectionRef.current.replaceTrack(
+                  stream.getVideoTracks()[0],
+                  newStream.getVideoTracks()[0],
+                  stream
+                );
+              } else {
+                connectionRef.current.addTrack(
+                  newStream.getVideoTracks()[0],
+                  newStream
+                );
+              }
+
+          console.log(connectionRef.current);
+        });
+  }, [vid, audio]);
 
   const callUser = (id: string) => {
     router.push(`call/${id}`);
@@ -62,51 +149,30 @@ const CallProvider = ({ children }: { children: React.ReactNode }) => {
               userVideo.current.srcObject = stream;
             }
           });
-        }
-      });
-  };
-
-  const answerCall = () => {
-    router.push(`call/${call.from.id}`);
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        setStream(stream);
-        if (myVideo.current) {
-          myVideo.current.srcObject = stream;
-        }
-        const peer = new Peer({
-          initiator: false,
-          trickle: false,
-          stream,
-        });
-
-        console.log(call.from.id);
-        // router.push(`call/${call.from.id}`);
-
-        peer.on("signal", (data) => {
-          socket.emit("answerCall", {
-            signal: data,
-            to: call?.from?.id,
-            stream,
+          socket.on("callReject", () => {
+            router.push("/");
+            setCallEnded(true);
+            setCallAccepted(false);
+            setCall(null);
           });
-        });
-        peer.on("stream", (stream: MediaStream) => {
-          console.log(stream);
-          if (userVideo.current) {
-            userVideo.current.srcObject = stream;
-          }
-        });
-        console.log(call.signal);
-        peer.signal(call.signal);
+          connectionRef.current = peer;
+        }
       });
   };
 
+  const answerCall = async () => {
+    router.push(`call/${call.from.id}`);
+    // if (pathName?.includes("/call/"))
+  };
   const rejectCall = () => {
-    socket.emit("rejectCall", { to: call?.from?.id });
-    setCallEnded(true);
-    setCallAccepted(false);
-    setCall(null);
+    const id = pathName?.split("/")[2];
+    if (id) {
+      socket.emit("callReject", { to: id });
+      router.push("/");
+      setCallEnded(true);
+      setCallAccepted(false);
+      setCall(null);
+    }
   };
 
   return (

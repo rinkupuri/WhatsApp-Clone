@@ -6,7 +6,7 @@ export const chatApi = createSlice({
     chat: {
       id: "",
       users: [""],
-      lastmessage: { message: "", date: new Date() },
+      lastmessage: { message: "", date: "" },
       isDeleted: false,
       isRead: true,
       unread: 0,
@@ -29,7 +29,7 @@ export const chatApi = createSlice({
       state.chat = {
         id: "",
         users: [""],
-        lastmessage: { message: "", date: new Date() },
+        lastmessage: { message: "", date: "" },
         isDeleted: false,
         isRead: true,
         unread: 0,

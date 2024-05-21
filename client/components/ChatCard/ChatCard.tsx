@@ -36,9 +36,10 @@ export interface ChatCardProps {
     };
   };
   setChats: (chat: any) => void;
+  deleteMessage: (id: string) => void;
 }
 
-const ChatCard: FC<ChatCardProps> = ({ chat, setChats }) => {
+const ChatCard: FC<ChatCardProps> = ({ chat, setChats, deleteMessage }) => {
   const handelChatClick = () => {
     Store.dispatch(setChat({ chat: chat }));
     setChats((prev: any) => {
@@ -73,8 +74,8 @@ const ChatCard: FC<ChatCardProps> = ({ chat, setChats }) => {
         </div>
         <div className="flex gap-2 justify-center items-center flex-col flex-[1]">
           <span className="text-[10px]">
-            {moment(chat.lastmessage?.date).fromNow() &&
-              timeSeter(chat.lastmessage.date)}
+            {moment(chat?.lastmessage?.date).fromNow() &&
+              timeSeter(chat?.lastmessage?.date)}
           </span>
           <div className="flex gap-4 mr-2 justify-center items-center">
             {chat.unread > 0 && (
@@ -95,7 +96,14 @@ const ChatCard: FC<ChatCardProps> = ({ chat, setChats }) => {
               >
                 <DropdownMenuItem>Mute Chat</DropdownMenuItem>
                 <DropdownMenuItem>Archive Chat</DropdownMenuItem>
-                <DropdownMenuItem>Delete Chat</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    chat?.chatId && deleteMessage(chat?.chatId);
+                  }}
+                >
+                  Delete Chat
+                </DropdownMenuItem>
                 <DropdownMenuItem>Mark as Unread</DropdownMenuItem>
                 <DropdownMenuItem>Block</DropdownMenuItem>
               </DropdownMenuContent>

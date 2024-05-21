@@ -19,7 +19,6 @@ export class AuthGuard implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
     const next = context.switchToHttp().getNext();
     try {
-      console.log('object');
       const { token } = request.cookies;
       if (!token) {
         throw new UnauthorizedException('token nedded');
@@ -50,8 +49,6 @@ export class AuthGuard implements CanActivate {
     } catch (e) {
       throw new UnauthorizedException('Invalid token');
     }
-
-    console.log('object');
 
     return true;
   }
